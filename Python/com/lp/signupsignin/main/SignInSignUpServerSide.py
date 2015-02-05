@@ -109,31 +109,40 @@ def sign_up():
                         cursor.close()
                         del cursor
                         conn.close()
-                        json_response='{"success":1,"responseMessage":"Success"}'
+                        #json_response='{"success":1,"responseMessage":"Success"}'
+                        json_response='{"success":1,"responseMessage":"Success","id":'+str(id)+'}'
                         response = json.loads(json_response)
                         return response
 
 
 @post('/upload')
 def upload():
-    email=request.get_header('email')
+    #email=request.get_header('email')
+    id=request.get_header('id')
     imagefile=request.files['fileupload']
     image = imagefile.file.read()
     imageName = imagefile.filename
-    conn = psycopg2.connect(conn_string)
-    cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE data->>'email'= (%s)", (email,))
-    for row in cursor:
-      if row[0]:
-         img = open('C:/Users/manarPC/PycharmProjects/LPSearch/images/'+str(row[0])+'/'+imageName, 'wb')
-         img.write(image)
+    # conn = psycopg2.connect(conn_string)
+    # cursor = conn.cursor()
+    # cursor.execute("SELECT id FROM users WHERE data->>'email'= (%s)", (email,))
+    # for row in cursor:
+    #   if row[0]:
+    img = open('C:/Users/manarPC/PycharmProjects/LPSearch/images/'+str(id)+'/'+imageName, 'wb')
+    img.write(image)
     json_response = '{"success":1,"responseMessage":"Success"}'
     response = json.loads(json_response)
-    cursor.close()
-    del cursor
-    conn.close()
+    # cursor.close()
+    # del cursor
+    # conn.close()
     return response
 
+
+@post('/getImage')
+def getImage():
+    json_response = '{"url":"http://pin2me.comyr.com/upload/image/100PINT.jpg,http://pin2me.comyr.com/upload/image/100PINT.jpg,http://pin2me.comyr.com/upload/image/100PINT.jpg,http://pin2me.comyr.com/upload/image/100PINT.jpg"}'
+    response = json.loads(json_response)
+
+    return response
 
 run(host='10.10.10.52', port=7777, debug=True, reloader=True)
 
