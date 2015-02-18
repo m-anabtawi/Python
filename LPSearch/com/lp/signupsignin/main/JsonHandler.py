@@ -72,12 +72,7 @@ class JsonHandler:
         response = json.loads(json_response)
         return response
 
-    def URL(self):
-        # json_response = '{"url": ["http://pin2me.comyr.com/upload/image/IMG-20140925-WA0000.jpg.jpg", "http://pin2me.comyr.com/upload/image/100PINT.jpg", "http://pin2me.comyr.com/upload/image/IMG-20140925-WA0000.jpg.jpg"]}'
-        # response= json.loads(json_response)
-        json_response = '{"url":"http://pin2me.comyr.com/upload/image/IMG-20140925-WA0000.jpg.jpg,http://pin2me.comyr.com/upload/image/100PINT.jpg,http://pin2me.comyr.com/upload/image/100PINT.jpg,http://pin2me.comyr.com/upload/image/100PINT.jpg,http://pin2me.comyr.com/upload/image/100PINT.jpg,http://pin2me.comyr.com/upload/image/IMG-20140925-WA0000.jpg.jpg"}'
-        response = json.loads(json_response)
-        return response
+
 
 
 

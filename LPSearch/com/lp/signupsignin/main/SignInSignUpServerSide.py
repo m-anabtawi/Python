@@ -1,12 +1,17 @@
-from psycopg2._json import Json
+import urllib2
+
 
 __author__ = 'manarPC'
 
-from bottle import run, post, request, error
+from bottle import run, post, request, error, get
 import json
 import os
 import DataBaseQuery
 import JsonHandler
+import urllib
+from psycopg2._json import Json
+from bottle import static_file
+from gcm import *
 
 dbq = DataBaseQuery.DataBaseQuery()
 jh = JsonHandler.JsonHandler()
@@ -30,13 +35,11 @@ def sign_in():
         elif not password:
                return jh.NoPassword()
         else:
-                connection = dbq.connection
                 cursor = dbq.SelectImage(email, password)
                 for row in cursor:
                     if row[0]:
                         cursor.close()
                         del cursor
-                        connection.close()
                         return jh.SuccessLogin(row[0])
                 return jh.ErrorLogin()
 
@@ -79,7 +82,6 @@ def sign_up():
                                    os.makedirs(directory)
                             cursor.close()
                             del cursor
-                            connection.close()
                             return jh.SuccessRegister(id)
                         else:
                             return jh.ErrorInRegister()
@@ -98,10 +100,61 @@ def upload():
     return jh.SuccessUpload()
 
 
-@post('/getImage')
+@post('/getImageName')
 def getImage():
-    return jh.URL()
+    names = os.listdir('C:\Users\manarPC\PycharmProjects\LPSearch\images\explore')
+    n = ''
+    for name in names:
+       n += name + ','
+    json_response = '{"url":"'+n+'"}'
+    response = json.loads(json_response)
+    return response
 
-run(host='172.16.228.137', port=7777, debug=True, reloader=True)
+
+
+@get('/getImage/<filename>')
+def send_image(filename):
+    return static_file(filename, root='C:\\Users\\manarPC\\PycharmProjects\\LPSearch\\images\\explore', mimetype='image/png')
+#
+@get('/GCM')
+def GCM():
+    file = open('newfile.txt','r')
+    regId = file.read()
+    json_data = {"registration_ids": [regId],}
+    url ="https://android.googleapis.com/gcm/send"
+    apiKey ="AIzaSyCs3E0Fb8pIbSuLsBLL6brr3qU6V-CR9bw"
+    myKey ="key=" + apiKey
+    message = json.dumps(json_data)
+    headers ={'Content-Type': 'application/json', 'Authorization': myKey}
+    req = urllib2.Request(url,message,headers)
+    f = urllib2.urlopen(req)
+    response = json.loads(f.read())
+    return response
+
+
+#register android device id on the server
+@post('/gcmRegKey')
+def gcmRegKey():
+    data = request.body.read()
+    entity = json.loads(data)
+    regId= entity['regid']
+    file = open("newfile.txt", "w")
+    file.write(regId)
+    file.close()
+
+
+@post('/download')
+def getImage():
+    urls = jh.URL()
+    listPath = ['']
+    urlPath = urls['url']
+    image = urlPath.split(',')
+    for url in image:
+     imageName = url.rsplit('/', 1)[1]
+     path = jh.directory+"image/"+imageName
+     listPath.append(path)
+     urllib.urlretrieve(url, path)
+
+run(host='192.168.1.102', port=7777, debug=True, reloader=True)
 
 
